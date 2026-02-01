@@ -1064,19 +1064,48 @@
         // Firebase Configuration
         // ======================
         // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
-  authDomain: "yasser-chat-6c39c.firebaseapp.com",
-  projectId: "yasser-chat-6c39c",
-  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
-  messagingSenderId: "141483029088",
-  appId: "1:141483029088:web:18787391e80466f6bbc905"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
+    authDomain: "yasser-chat-6c39c.firebaseapp.com",
+    projectId: "yasser-chat-6c39c",
+    storageBucket: "yasser-chat-6c39c.firebasestorage.app",
+    messagingSenderId: "141483029088",
+    appId: "1:141483029088:web:18787391e80466f6bbc905"
+  };
+
+  const app = initializeApp(firebaseConfig);
+import { getAuth, signInAnonymously } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const auth = getAuth(app);
+
+signInAnonymously(auth)
+  .then(() => {
+    console.log("اتسجل دخول بنجاح");
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+import { getFirestore, collection, addDoc } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const db = getFirestore(app);
+
+// تجربة إضافة رسالة
+async function sendTestMessage() {
+  await addDoc(collection(db, "messages"), {
+    text: "أول رسالة من موقعي 🔥",
+    createdAt: new Date()
+  });
+  console.log("تم حفظ الرسالة في Firebase");
+}
+
+sendTestMessage();
+
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
