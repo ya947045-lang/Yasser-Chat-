@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#075e54">
+    <title>دردشة مصرية - تطبيق دردشة مجاني</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" id="manifest">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+    
+    <!-- Styles & Icons -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        :root {
+            --whatsapp-green: #075e54;
+            --whatsapp-light-green: #128c7e;
+            --whatsapp-teal: #25d366;
+            --whatsapp-light: #dcf8c6;
+            --whatsapp-gray: #ece5dd;
+            --whatsapp-dark-gray: #4a4a4a;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #075e54, #128c7e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 95vh;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--whatsapp-green);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 22px;
+        }
+        
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        /* Screens */
+        .screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        /* Auth Screen */
+        .auth-screen {
+            padding: 30px 20px;
+            background: white;
+            text-align: center;
+        }
+        
+        .auth-header {
+            margin-bottom: 30px;
+        }
+        
+        .auth-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--whatsapp-teal);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        
+        .auth-title {
+            color: var(--whatsapp-green);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .auth-subtitle {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .auth-form {
+            margin-top: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--whatsapp-dark-gray);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--whatsapp-teal);
+            outline: none;
+        }
+        
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .country-code {
+            width: 80px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background: var(--whatsapp-teal);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            background: #1da851;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--whatsapp-dark-gray);
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .auth-footer {
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        /* OTP Screen */
+        .otp-screen {
+            padding: 30px 20px;
+            background: white;
+            text-align: center;
+        }
+        
+        .otp-title {
+            color: var(--whatsapp-green);
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        
+        .otp-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            direction: ltr;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .otp-input:focus {
+            border-color: var(--whatsapp-teal);
+            outline: none;
+        }
+        
+        .resend-otp {
+            margin-top: 20px;
+            color: var(--whatsapp-light-green);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Chat List Screen */
+        .chat-list-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-bar {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            background: #f6f6f6;
+            padding-right: 40px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--whatsapp-teal);
+        }
+        
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .chat-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--whatsapp-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-left: 15px;
+        }
+        
+        .chat-info {
+            flex: 1;
+        }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .chat-preview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-message {
+            color: #666;
+            font-size: 14px;
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-unread {
+            background: var(--whatsapp-teal);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Chat Screen */
+        .chat-header-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chat-header-back {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .messages-container {
+            flex: 1;
+            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%23f0f0f0" d="M50,0 L100,50 L50,100 L0,50 Z"/></svg>');
+            background-size: 200px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            position: relative;
+            word-wrap: break-word;
+            animation: messageAppear 0.3s ease-out;
+            line-height: 1.4;
+        }
+        
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.sent {
+            background: var(--whatsapp-light);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.received {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .message-text {
+            margin-bottom: 5px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            text-align: left;
+            direction: ltr;
+        }
+        
+        .message.sent .message-time {
+            text-align: right;
+        }
+        
+        .input-area {
+            padding: 15px;
+            background: #f0f0f0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .message-input:focus {
+            outline: none;
+        }
+        
+        .send-btn {
+            background: var(--whatsapp-teal);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Contacts Screen */
+        .contacts-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-left: 15px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .contact-phone {
+            color: #666;
+            font-size: 14px;
+            direction: ltr;
+            text-align: right;
+        }
+        
+        .add-contact-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--whatsapp-teal);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            z-index: 100;
+        }
+        
+        /* Profile Screen */
+        .profile-header {
+            height: 150px;
+            background: linear-gradient(135deg, var(--whatsapp-green), var(--whatsapp-light-green));
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            border: 5px solid white;
+            position: absolute;
+            bottom: -50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--whatsapp-green);
+        }
+        
+        .profile-body {
+            padding: 60px 20px 20px;
+        }
+        
+        .profile-info {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .profile-field {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .profile-field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .field-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .nav-item.active {
+            color: var(--whatsapp-teal);
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .nav-badge {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            background: #ff3b30;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 15px;
+            text-align: center;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 20px;
+            font-size: 18px;
+            color: var(--whatsapp-green);
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--whatsapp-teal);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideIn 0.3s, slideOut 0.3s 2.7s;
+            display: none;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .modal-title {
+            color: var(--whatsapp-green);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .modal-btn.primary {
+            background: var(--whatsapp-teal);
+            color: white;
+        }
+        
+        .modal-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                background: white;
+            }
+            
+            .container {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .chat-header-back {
+                display: block;
+            }
+            
+            .add-contact-btn {
+                left: 20px;
+                bottom: 80px;
+            }
+        }
+        
+        /* Install Button */
+        .install-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--whatsapp-teal);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            z-index: 1002;
+            display: none;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .no-data i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* Animation for new message */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .new-message {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Install Button for PWA -->
+    <button id="installBtn" class="install-btn">
+        📱 تثبيت التطبيق
+    </button>
+    
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loadingText">جاري التحميل...</div>
+    </div>
+    
+    <!-- Toast Messages -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- Add Contact Modal -->
+    <div id="addContactModal" class="modal-overlay">
+        <div class="modal">
+            <h3 class="modal-title">إضافة جهة اتصال جديدة</h3>
+            <div class="input-group">
+                <label>اسم جهة الاتصال</label>
+                <input type="text" id="contactNameInput" placeholder="أدخل الاسم">
+            </div>
+            <div class="input-group">
+                <label>رقم الهاتف</label>
+                <input type="tel" id="contactPhoneInput" placeholder="مثال: 01234567890" dir="ltr">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="cancelContactBtn">إلغاء</button>
+                <button class="modal-btn primary" id="saveContactBtn">حفظ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button id="backBtn" class="chat-header-back">
+                ←
+            </button>
+            <div class="logo">
+                <div>💬</div>
+                <h1 id="headerTitle">دردشة مصرية</h1>
+            </div>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <!-- Authentication Screen -->
+        <div id="authScreen" class="screen active">
+            <div class="auth-screen">
+                <div class="auth-header">
+                    <div class="auth-icon">💬</div>
+                    <h2 class="auth-title">دردشة مصرية</h2>
+                    <p class="auth-subtitle">تطبيق دردشة مجاني وآمن للمصريين.<br>تواصل مع أصدقائك وعائلتك في أي وقت.</p>
+                </div>
+                
+                <div class="auth-form">
+                    <div class="input-group">
+                        <label for="name">الاسم بالكامل</label>
+                        <input type="text" id="name" placeholder="أحمد محمد" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="phone">رقم الهاتف المصري</label>
+                        <div class="phone-input-group">
+                            <div class="country-code">+20</div>
+                            <input type="tel" id="phone" placeholder="1234567890" required dir="ltr">
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="sendOtpBtn">
+                        <span>📱</span>
+                        إرسال رمز التحقق
+                    </button>
+                    
+                    <p class="auth-footer">
+                        بالضغط على الزر، أنت توافق على 
+                        <a href="#" style="color: var(--whatsapp-teal);">شروط الخدمة</a> 
+                        و 
+                        <a href="#" style="color: var(--whatsapp-teal);">سياسة الخصوصية</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OTP Verification Screen -->
+        <div id="otpScreen" class="screen">
+            <div class="otp-screen">
+                <h2 class="otp-title">تحقق من رقم الهاتف</h2>
+                <p class="otp-subtitle" id="otpSubtitle">تم إرسال رمز تحقق مكون من 6 أرقام إلى <span id="phoneNumber"></span></p>
+                
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                
+                <button class="btn" id="verifyOtpBtn">
+                    <span>✅</span>
+                    تأكيد الرمز
+                </button>
+                
+                <div class="resend-otp" id="resendOtp">
+                    لم يصلك الرمز؟ <span style="font-weight: bold;">إعادة إرسال</span>
+                </div>
+                
+                <button class="btn btn-secondary" id="backToAuthBtn" style="margin-top: 20px;">
+                    ← العودة للخلف
+                </button>
+            </div>
+        </div>
+        
+        <!-- Chat List Screen -->
+        <div id="chatListScreen" class="screen">
+            <div class="chat-list-container">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="chatSearchInput" placeholder="🔍 ابحث في المحادثات...">
+                </div>
+                <div class="chat-list" id="chatList">
+                    <!-- Chats will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Screen -->
+        <div id="chatScreen" class="screen">
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be loaded here -->
+            </div>
+            <div class="input-area">
+                <input type="text" class="message-input" id="messageInput" placeholder="اكتب رسالة..." dir="rtl">
+                <button class="send-btn" id="sendBtn">
+                    ↗
+                </button>
+            </div>
+        </div>
+        
+        <!-- Contacts Screen -->
+        <div id="contactsScreen" class="screen">
+            <div class="contacts-container">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="contactSearchInput" placeholder="🔍 ابحث في جهات الاتصال...">
+                </div>
+                <div class="contacts-list" id="contactsList">
+                    <!-- Contacts will be loaded here -->
+                </div>
+            </div>
+            <button class="add-contact-btn" id="addContactBtn">
+                +
+            </button>
+        </div>
+        
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="screen">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    👤
+                </div>
+            </div>
+            <div class="profile-body">
+                <div class="profile-info">
+                    <div class="profile-field">
+                        <span class="field-label">الاسم</span>
+                        <span class="field-value" id="profileName">-</span>
+                    </div>
+                    <div class="profile-field">
+                        <span class="field-label">رقم الهاتف</span>
+                        <span class="field-value" id="profilePhone">-</span>
+                    </div>
+                    <div class="profile-field">
+                        <span class="field-label">الحالة</span>
+                        <span class="field-value" id="profileStatus">متصل</span>
+                    </div>
+                    <div class="profile-field">
+                        <span class="field-label">معرف المستخدم</span>
+                        <span class="field-value" id="profileId" style="font-size: 12px; direction: ltr;">-</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="editProfileBtn">
+                    <span>✏️</span>
+                    تعديل الملف الشخصي
+                </button>
+                <button class="btn btn-secondary" id="logoutBtn" style="margin-top: 10px;">
+                    <span>🚪</span>
+                    تسجيل الخروج
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active" data-screen="chatListScreen">
+                <i>💬</i>
+                <span>الدردشات</span>
+                <span class="nav-badge" id="chatBadge" style="display: none;">0</span>
+            </a>
+            <a href="#" class="nav-item" data-screen="contactsScreen">
+                <i>👥</i>
+                <span>جهات الاتصال</span>
+            </a>
+            <a href="#" class="nav-item" data-screen="profileScreen">
+                <i>👤</i>
+                <span>الملف</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script>
+        // ======================
+        // Firebase Configuration
+        // ======================
+        const firebaseConfig = {
+            // ⚠️ استبدل هذه القيم بقيم مشروعك الفعلي من Firebase Console
+            apiKey: "AIzaSyDUMMY_KEY_CHANGE_ME",
+            authDomain: "egypt-chat-app.firebaseapp.com",
+            projectId: "egypt-chat-app",
+            storageBucket: "egypt-chat-app.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+        
+        // ==============
+        // App Variables
+        // ==============
+        let currentUser = null;
+        let currentChat = null;
+        let unsubscribeMessages = null;
+        let unsubscribeChats = null;
+        let unsubscribeContacts = null;
+        let verificationId = null;
+        let fcmToken = null;
+        
+        // ==============
+        // DOM Elements
+        // ==============
+        const elements = {
+            // Screens
+            authScreen: document.getElementById('authScreen'),
+            otpScreen: document.getElementById('otpScreen'),
+            chatListScreen: document.getElementById('chatListScreen'),
+            chatScreen: document.getElementById('chatScreen'),
+            contactsScreen: document.getElementById('contactsScreen'),
+            profileScreen: document.getElementById('profileScreen'),
+            
+            // Header
+            headerTitle: document.getElementById('headerTitle'),
+            backBtn: document.getElementById('backBtn'),
+            
+            // Auth
+            nameInput: document.getElementById('name'),
+            phoneInput: document.getElementById('phone'),
+            sendOtpBtn: document.getElementById('sendOtpBtn'),
+            
+            // OTP
+            otpSubtitle: document.getElementById('otpSubtitle'),
+            phoneNumber: document.getElementById('phoneNumber'),
+            otpInputs: document.querySelectorAll('.otp-input'),
+            verifyOtpBtn: document.getElementById('verifyOtpBtn'),
+            resendOtp: document.getElementById('resendOtp'),
+            backToAuthBtn: document.getElementById('backToAuthBtn'),
+            
+            // Chat List
+            chatList: document.getElementById('chatList'),
+            chatSearchInput: document.getElementById('chatSearchInput'),
+            
+            // Chat
+            messagesContainer: document.getElementById('messagesContainer'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            
+            // Contacts
+            contactsList: document.getElementById('contactsList'),
+            addContactBtn: document.getElementById('addContactBtn'),
+            contactSearchInput: document.getElementById('contactSearchInput'),
+            
+            // Profile
+            profileName: document.getElementById('profileName'),
+            profilePhone: document.getElementById('profilePhone'),
+            profileStatus: document.getElementById('profileStatus'),
+            profileId: document.getElementById('profileId'),
+            profileAvatar: document.getElementById('profileAvatar'),
+            editProfileBtn: document.getElementById('editProfileBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            
+            // Modal
+            addContactModal: document.getElementById('addContactModal'),
+            contactNameInput: document.getElementById('contactNameInput'),
+            contactPhoneInput: document.getElementById('contactPhoneInput'),
+            cancelContactBtn: document.getElementById('cancelContactBtn'),
+            saveContactBtn: document.getElementById('saveContactBtn'),
+            
+            // Navigation
+            navItems: document.querySelectorAll('.nav-item'),
+            chatBadge: document.getElementById('chatBadge'),
+            
+            // Loading & Toast
+            loading: document.getElementById('loading'),
+            loadingText: document.getElementById('loadingText'),
+            toast: document.getElementById('toast'),
+            
+            // Install Button
+            installBtn: document.getElementById('installBtn')
+        };
+        
+        // ==============
+        // Utility Functions
+        // ==============
+        function showLoading(text = 'جاري التحميل...') {
+            elements.loadingText.textContent = text;
+            elements.loading.style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            elements.loading.style.display = 'none';
+        }
+        
+        function showToast(message, duration = 3000) {
+            elements.toast.textContent = message;
+            elements.toast.style.display = 'block';
+            setTimeout(() => {
+                elements.toast.style.display = 'none';
+            }, duration);
+        }
+        
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Update navigation
+            elements.navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-screen') === screenId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update header title
+            updateHeaderTitle(screenId);
+            
+            // Show/hide back button
+            elements.backBtn.style.display = screenId === 'chatScreen' ? 'block' : 'none';
+        }
+        
+        function updateHeaderTitle(screenId) {
+            const titles = {
+                'authScreen': 'دردشة مصرية',
+                'otpScreen': 'تحقق من الرقم',
+                'chatListScreen': 'الدردشات',
+                'chatScreen': currentChat ? currentChat.name : 'المحادثة',
+                'contactsScreen': 'جهات الاتصال',
+                'profileScreen': 'الملف الشخصي'
+            };
+            elements.headerTitle.textContent = titles[screenId] || 'دردشة مصرية';
+        }
+        
+        function formatPhoneNumber(phone) {
+            // Format Egyptian phone number
+            if (phone.startsWith('+20')) {
+                return '0' + phone.substring(3);
+            }
+            if (phone.startsWith('20')) {
+                return '0' + phone.substring(2);
+            }
+            return phone;
+        }
+        
+        function formatDisplayPhone(phone) {
+            const formatted = formatPhoneNumber(phone);
+            return formatted.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+        }
+        
+        function formatDate(timestamp) {
+            if (!timestamp) return 'الآن';
+            try {
+                const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                const now = new Date();
+                const diff = now - date;
+                
+                if (diff < 60000) return 'الآن';
+                if (diff < 3600000) return `${Math.floor(diff / 60000)} د`;
+                if (diff < 86400000) return `${Math.floor(diff / 3600000)} س`;
+                if (diff < 604800000) return `${Math.floor(diff / 86400000)} يوم`;
+                
+                return date.toLocaleDateString('ar-EG', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            } catch (e) {
+                return 'الآن';
+            }
+        }
+        
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+        
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // ==============
+        // Authentication with Phone Number
+        // ==============
+        async function sendOtp() {
+            const name = elements.nameInput.value.trim();
+            const phone = '+20' + elements.phoneInput.value.trim();
+            
+            if (!name || name.length < 2) {
+                showToast('الرجاء إدخال اسم صحيح (اسمين على الأقل)');
+                return;
+            }
+            
+            if (!elements.phoneInput.value.trim() || elements.phoneInput.value.trim().length !== 10) {
+                showToast('الرجاء إدخال رقم هاتف مصري صحيح (10 أرقام)');
+                return;
+            }
+            
+            showLoading('جاري إرسال رمز التحقق...');
+            
+            try {
+                // في التطبيق الحقيقي، استخدم Firebase Phone Auth
+                // لكن لأغراض العرض التوضيحي، سنستخدم نظام مبسط
+                
+                // Simulate OTP sending
+                setTimeout(() => {
+                    hideLoading();
+                    
+                    // Generate a random 6-digit OTP
+                    window.generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                    
+                    // Show OTP in alert for demo (في التطبيق الحقيقي، يتم إرساله عبر SMS)
+                    alert(`✨ لأغراض العرض التوضيحي فقط ✨\n\nرمز التحقق: ${window.generatedOtp}\n\nفي التطبيق الحقيقي، سيتم إرسال هذا الرمز عبر SMS إلى رقمك.`);
+                    
+                    // Save user data temporarily
+                    window.tempUserData = {
+                        name: name,
+                        phone: phone,
+                        otp: window.generatedOtp
+                    };
+                    
+                    // Show OTP screen
+                    elements.phoneNumber.textContent = formatDisplayPhone(phone);
+                    showScreen('otpScreen');
+                    
+                    // Auto-focus first OTP input
+                    elements.otpInputs[0].focus();
+                    
+                    showToast('تم إرسال رمز التحقق');
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error sending OTP:', error);
+                showToast('خطأ في إرسال رمز التحقق: ' + error.message);
+            }
+        }
+        
+        async function verifyOtp() {
+            const otp = Array.from(elements.otpInputs).map(input => input.value).join('');
+            
+            if (otp.length !== 6) {
+                showToast('الرجاء إدخال رمز التحقق المكون من 6 أرقام');
+                return;
+            }
+            
+            // For demo purposes, check against generated OTP
+            if (otp !== window.generatedOtp) {
+                showToast('رمز التحقق غير صحيح');
+                return;
+            }
+            
+            showLoading('جاري إنشاء حسابك...');
+            
+            try {
+                // Create user with phone number
+                const userData = window.tempUserData;
+                const userId = generateUserId();
+                
+                // Save user to Firestore
+                await db.collection('users').doc(userId).set({
+                    uid: userId,
+                    name: userData.name,
+                    phone: userData.phone,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'متصل',
+                    fcmToken: fcmToken || '',
+                    avatarColor: '#' + Math.floor(Math.random()*16777215).toString(16)
+                });
+                
+                // Set current user
+                currentUser = {
+                    uid: userId,
+                    name: userData.name,
+                    phone: userData.phone
+                };
+                
+                // Save to localStorage for persistence
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Clear temp data
+                delete window.tempUserData;
+                delete window.generatedOtp;
+                
+                // Initialize FCM for notifications
+                initializeFCM();
+                
+                // Show success
+                hideLoading();
+                showToast(`مرحباً ${userData.name}!`);
+                showApp();
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error verifying OTP:', error);
+                showToast('خطأ في إنشاء الحساب: ' + error.message);
+            }
+        }
+        
+        // ==============
+        // Firebase Cloud Messaging (FCM) for Notifications
+        // ==============
+        async function initializeFCM() {
+            if (!messaging) {
+                console.log('FCM not supported');
+                return;
+            }
+            
+            try {
+                // Request notification permission
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    // Get FCM token
+                    fcmToken = await messaging.getToken({
+                        vapidKey: 'YOUR_VAPID_KEY_HERE' // ⚠️ استبدل بمفتاح VAPID الخاص بك
+                    });
+                    
+                    if (fcmToken && currentUser) {
+                        // Save token to user document
+                        await db.collection('users').doc(currentUser.uid).update({
+                            fcmToken: fcmToken
+                        });
+                        
+                        console.log('FCM Token:', fcmToken);
+                    }
+                    
+                    // Listen for incoming messages
+                    messaging.onMessage((payload) => {
+                        console.log('Message received:', payload);
+                        
+                        // Show notification
+                        if (payload.notification) {
+                            showNotification(
+                                payload.notification.title,
+                                payload.notification.body
+                            );
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('FCM Error:', error);
+            }
+        }
+        
+        function showNotification(title, body) {
+            // Check if notifications are supported
+            if (!('Notification' in window)) return;
+            
+            if (Notification.permission === 'granted') {
+                // Create notification
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/733/733585.png',
+                    badge: 'https://cdn-icons-png.flaticon.com/512/733/733585.png',
+                    tag: 'chat-notification',
+                    requireInteraction: true
+                });
+                
+                // Handle notification click
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                    
+                    // If in a chat, refresh messages
+                    if (currentChat) {
+                        loadMessages(currentChat.id);
+                    }
+                };
+            }
+        }
+        
+        async function sendNotification(toUserId, message, chatId) {
+            try {
+                // Get recipient's FCM token
+                const recipientDoc = await db.collection('users').doc(toUserId).get();
+                if (!recipientDoc.exists) return;
+                
+                const recipientData = recipientDoc.data();
+                const recipientToken = recipientData.fcmToken;
+                
+                if (!recipientToken) return;
+                
+                // In a real app, you would call a Cloud Function or backend
+                // to send the notification. For demo, we'll simulate it.
+                
+                console.log('Would send notification to:', toUserId);
+                console.log('Message:', message);
+                
+                // Simulate notification
+                if (document.hidden) {
+                    showNotification(
+                        currentUser.name,
+                        message.length > 30 ? message.substring(0, 30) + '...' : message
+                    );
+                }
+                
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        }
+        
+        // ==============
+        // User Management
+        // ==============
+        async function loadUserProfile() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // Update current user object
+                    currentUser = { ...currentUser, ...userData };
+                    
+                    // Update profile screen
+                    elements.profileName.textContent = userData.name;
+                    elements.profilePhone.textContent = formatDisplayPhone(userData.phone);
+                    elements.profileId.textContent = currentUser.uid.substring(0, 8) + '...';
+                    
+                    // Update avatar with color
+                    const avatarColor = userData.avatarColor || '#075e54';
+                    elements.profileAvatar.innerHTML = `
+                        <div style="width:100%;height:100%;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;color:white;font-size:40px;">
+                            ${getInitials(userData.name)}
+                        </div>
+                    `;
+                    
+                    // Update user status
+                    await db.collection('users').doc(currentUser.uid).update({
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'متصل'
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+        
+        // ==============
+        // Chats Management
+        // ==============
+        async function createChat(contactId, contactName, contactPhone) {
+            try {
+                showLoading('جاري إنشاء المحادثة...');
+                
+                // Generate chat ID (sorted user IDs)
+                const chatId = [currentUser.uid, contactId].sort().join('_');
+                
+                // Check if chat already exists
+                const chatDoc = await db.collection('chats').doc(chatId).get();
+                
+                if (!chatDoc.exists) {
+                    // Create new chat
+                    await db.collection('chats').doc(chatId).set({
+                        id: chatId,
+                        participants: [currentUser.uid, contactId],
+                        participantNames: [currentUser.name, contactName],
+                        participantPhones: [currentUser.phone, contactPhone],
+                        lastMessage: '',
+                        lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        type: 'private',
+                        unreadCount: {
+                            [currentUser.uid]: 0,
+                            [contactId]: 0
+                        }
+                    });
+                    
+                    // Add to user's chats
+                    await db.collection('users').doc(currentUser.uid).collection('chats').doc(chatId).set({
+                        contactId: contactId,
+                        contactName: contactName,
+                        contactPhone: contactPhone,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        unread: 0
+                    });
+                    
+                    // Add to contact's chats
+                    await db.collection('users').doc(contactId).collection('chats').doc(chatId).set({
+                        contactId: currentUser.uid,
+                        contactName: currentUser.name,
+                        contactPhone: currentUser.phone,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        unread: 0
+                    });
+                    
+                    showToast(`بدأت محادثة مع ${contactName}`);
+                }
+                
+                // Open the chat
+                openChat(chatId, contactName);
+                
+            } catch (error) {
+                console.error('Error creating chat:', error);
+                showToast('خطأ في إنشاء المحادثة');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function openChat(chatId, chatName) {
+            currentChat = { id: chatId, name: chatName };
+            
+            // Update header
+            elements.headerTitle.textContent = chatName;
+            showScreen('chatScreen');
+            
+            // Focus on message input
+            setTimeout(() => {
+                elements.messageInput.focus();
+            }, 100);
+            
+            // Load messages
+            loadMessages(chatId);
+            
+            // Mark as read
+            markChatAsRead(chatId);
+        }
+        
+        async function loadMessages(chatId) {
+            // Unsubscribe from previous listener
+            if (unsubscribeMessages) unsubscribeMessages();
+            
+            // Clear messages container
+            elements.messagesContainer.innerHTML = '<div class="no-data">جاري تحميل الرسائل...</div>';
+            
+            try {
+                // Listen for messages in real-time
+                unsubscribeMessages = db.collection('messages')
+                    .doc(chatId)
+                    .collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .limit(100)
+                    .onSnapshot(snapshot => {
+                        if (snapshot.empty) {
+                            elements.messagesContainer.innerHTML = `
+                                <div class="no-data">
+                                    <div>💬</div>
+                                    <p>لا توجد رسائل بعد</p>
+                                    <p style="font-size: 12px; margin-top: 10px;">ابدأ المحادثة بإرسال رسالة</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        elements.messagesContainer.innerHTML = '';
+                        
+                        snapshot.forEach(doc => {
+                            const message = doc.data();
+                            addMessageToUI(message, doc.id);
+                        });
+                        
+                        // Scroll to bottom
+                        setTimeout(() => {
+                            elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+                        }, 100);
+                    });
+                    
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                elements.messagesContainer.innerHTML = '<div class="no-data">خطأ في تحميل الرسائل</div>';
+            }
+        }
+        
+        async function sendMessage(text) {
+            if (!text.trim() || !currentChat || !currentUser) return;
+            
+            try {
+                const messageData = {
+                    text: text.trim(),
+                    senderId: currentUser.uid,
+                    senderName: currentUser.name,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    readBy: [currentUser.uid],
+                    type: 'text'
+                };
+                
+                // Add message to Firestore
+                const messageRef = await db.collection('messages')
+                    .doc(currentChat.id)
+                    .collection('messages')
+                    .add(messageData);
+                
+                // Get chat participants
+                const chatDoc = await db.collection('chats').doc(currentChat.id).get();
+                if (chatDoc.exists) {
+                    const chatData = chatDoc.data();
+                    const participants = chatData.participants || [];
+                    
+                    // Find recipient
+                    const recipientId = participants.find(id => id !== currentUser.uid);
+                    
+                    // Update chat last message
+                    await db.collection('chats').doc(currentChat.id).update({
+                        lastMessage: text.trim(),
+                        lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+                        [`unreadCount.${recipientId}`]: firebase.firestore.FieldValue.increment(1)
+                    });
+                    
+                    // Update unread count for recipient in their chats subcollection
+                    if (recipientId) {
+                        await db.collection('users').doc(recipientId)
+                            .collection('chats').doc(currentChat.id)
+                            .update({
+                                unread: firebase.firestore.FieldValue.increment(1),
+                                lastMessage: text.trim(),
+                                lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        
+                        // Send notification to recipient
+                        sendNotification(recipientId, text.trim(), currentChat.id);
+                    }
+                    
+                    // Update sender's chat
+                    await db.collection('users').doc(currentUser.uid)
+                        .collection('chats').doc(currentChat.id)
+                        .update({
+                            lastMessage: text.trim(),
+                            lastMessageTime: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                }
+                
+                // Clear input
+                elements.messageInput.value = '';
+                elements.messageInput.focus();
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('خطأ في إرسال الرسالة');
+            }
+        }
+        
+        function addMessageToUI(message, messageId) {
+            const isSent = message.senderId === currentUser.uid;
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${isSent ? 'sent' : 'received'} new-message`;
+            messageElement.id = messageId;
+            
+            const time = message.timestamp ? formatDate(message.timestamp) : 'الآن';
+            
+            messageElement.innerHTML = `
+                <div class="message-text">${message.text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            elements.messagesContainer.appendChild(messageElement);
+            
+            // Remove new-message class after animation
+            setTimeout(() => {
+                messageElement.classList.remove('new-message');
+            }, 500);
+        }
+        
+        async function markChatAsRead(chatId) {
+            if (!currentUser || !chatId) return;
+            
+            try {
+                // Reset unread count in chat
+                await db.collection('chats').doc(chatId).update({
+                    [`unreadCount.${currentUser.uid}`]: 0
+                });
+                
+                // Reset unread count in user's chats subcollection
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('chats').doc(chatId)
+                    .update({
+                        unread: 0,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                // Update badge
+                updateUnreadBadge();
+                
+            } catch (error) {
+                console.error('Error marking chat as read:', error);
+            }
+        }
+        
+        async function loadChats() {
+            if (!currentUser) return;
+            
+            // Unsubscribe from previous listener
+            if (unsubscribeChats) unsubscribeChats();
+            
+            try {
+                unsubscribeChats = db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('chats')
+                    .orderBy('lastMessageTime', 'desc')
+                    .onSnapshot(snapshot => {
+                        elements.chatList.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            elements.chatList.innerHTML = `
+                                <div class="no-data">
+                                    <div>💬</div>
+                                    <p>لا توجد محادثات بعد</p>
+                                    <p style="font-size: 12px; margin-top: 10px;">ابدأ محادثة جديدة من قائمة جهات الاتصال</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        let totalUnread = 0;
+                        
+                        snapshot.forEach(doc => {
+                            const chat = doc.data();
+                            totalUnread += (chat.unread || 0);
+                            addChatToUI(chat, doc.id);
+                        });
+                        
+                        // Update badge
+                        if (totalUnread > 0) {
+                            elements.chatBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+                            elements.chatBadge.style.display = 'block';
+                        } else {
+                            elements.chatBadge.style.display = 'none';
+                        }
+                        
+                        // Also listen to all chats for real-time updates
+                        listenToAllChats();
+                    });
+                    
+            } catch (error) {
+                console.error('Error loading chats:', error);
+                elements.chatList.innerHTML = '<div class="no-data">خطأ في تحميل المحادثات</div>';
+            }
+        }
+        
+        function listenToAllChats() {
+            if (!currentUser) return;
+            
+            // Listen to all chats where user is participant
+            db.collection('chats')
+                .where('participants', 'array-contains', currentUser.uid)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'modified') {
+                            const chatData = change.doc.data();
+                            const unreadCount = chatData.unreadCount || {};
+                            const userUnread = unreadCount[currentUser.uid] || 0;
+                            
+                            // Update badge if needed
+                            if (userUnread > 0) {
+                                updateUnreadBadge();
+                            }
+                        }
+                    });
+                });
+        }
+        
+        function updateUnreadBadge() {
+            // This would update in real-time when new messages arrive
+            // For now, we'll reload chats to get updated counts
+            loadChats();
+        }
+        
+        function addChatToUI(chat, chatId) {
+            const chatElement = document.createElement('div');
+            chatElement.className = 'chat-item';
+            chatElement.dataset.chatId = chatId;
+            
+            const initials = getInitials(chat.contactName);
+            const unreadCount = chat.unread || 0;
+            const lastMessage = chat.lastMessage || 'لا توجد رسائل بعد';
+            const lastTime = chat.lastMessageTime ? formatDate(chat.lastMessageTime) : '';
+            
+            chatElement.innerHTML = `
+                <div class="chat-avatar">${initials}</div>
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <div class="chat-name">${chat.contactName}</div>
+                        <div class="chat-time">${lastTime}</div>
+                    </div>
+                    <div class="chat-preview">
+                        <div class="chat-message">${lastMessage}</div>
+                        ${unreadCount > 0 ? `<div class="chat-unread">${unreadCount}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            chatElement.addEventListener('click', () => {
+                openChat(chatId, chat.contactName);
+            });
+            
+            elements.chatList.appendChild(chatElement);
+        }
+        
+        // ==============
+        // Contacts Management
+        // ==============
+        async function loadContacts() {
+            if (!currentUser) return;
+            
+            // Unsubscribe from previous listener
+            if (unsubscribeContacts) unsubscribeContacts();
+            
+            try {
+                // Load contacts from Firestore
+                unsubscribeContacts = db.collection('contacts')
+                    .where('userId', '==', currentUser.uid)
+                    .orderBy('name')
+                    .onSnapshot(snapshot => {
+                        elements.contactsList.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            elements.contactsList.innerHTML = `
+                                <div class="no-data">
+                                    <div>👥</div>
+                                    <p>لا توجد جهات اتصال</p>
+                                    <p style="font-size: 12px; margin-top: 10px;">أضف جهات اتصال جديدة</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        snapshot.forEach(doc => {
+                            const contact = doc.data();
+                            addContactToUI(contact, doc.id);
+                        });
+                    });
+                    
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                elements.contactsList.innerHTML = '<div class="no-data">خطأ في تحميل جهات الاتصال</div>';
+            }
+        }
+        
+        function addContactToUI(contact, contactId) {
+            const contactElement = document.createElement('div');
+            contactElement.className = 'contact-item';
+            contactElement.dataset.contactId = contactId;
+            
+            const initials = getInitials(contact.name);
+            const formattedPhone = formatDisplayPhone(contact.phone);
+            
+            contactElement.innerHTML = `
+                <div class="contact-avatar">${initials}</div>
+                <div class="contact-info">
+                    <div class="contact-name">${contact.name}</div>
+                    <div class="contact-phone">${formattedPhone}</div>
+                </div>
+            `;
+            
+            contactElement.addEventListener('click', async () => {
+                // Check if user exists for this phone
+                try {
+                    const usersSnapshot = await db.collection('users')
+                        .where('phone', '==', contact.phone)
+                        .limit(1)
+                        .get();
+                    
+                    if (!usersSnapshot.empty) {
+                        const userDoc = usersSnapshot.docs[0];
+                        const userData = userDoc.data();
+                        createChat(userData.uid, userData.name, userData.phone);
+                    } else {
+                        showToast('هذا المستخدم غير مسجل في التطبيق بعد');
+                    }
+                } catch (error) {
+                    console.error('Error checking user:', error);
+                }
+            });
+            
+            elements.contactsList.appendChild(contactElement);
+        }
+        
+        async function addContact(name, phone) {
+            if (!name.trim() || !phone.trim()) {
+                showToast('الرجاء إدخال الاسم ورقم الهاتف');
+                return;
+            }
+            
+            // Format phone number
+            let formattedPhone = phone.trim();
+            if (formattedPhone.startsWith('0')) {
+                formattedPhone = '+20' + formattedPhone.substring(1);
+            } else if (!formattedPhone.startsWith('+')) {
+                formattedPhone = '+20' + formattedPhone;
+            }
+            
+            try {
+                showLoading('جاري إضافة جهة الاتصال...');
+                
+                // Check if contact already exists
+                const existingContact = await db.collection('contacts')
+                    .where('userId', '==', currentUser.uid)
+                    .where('phone', '==', formattedPhone)
+                    .limit(1)
+                    .get();
+                
+                if (!existingContact.empty) {
+                    showToast('جهة الاتصال موجودة بالفعل');
+                    hideLoading();
+                    return;
+                }
+                
+                // Add contact
+                await db.collection('contacts').add({
+                    userId: currentUser.uid,
+                    name: name.trim(),
+                    phone: formattedPhone,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                hideLoading();
+                showToast('تمت إضافة جهة الاتصال بنجاح');
+                elements.addContactModal.style.display = 'none';
+                elements.contactNameInput.value = '';
+                elements.contactPhoneInput.value = '';
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error adding contact:', error);
+                showToast('خطأ في إضافة جهة الاتصال');
+            }
+        }
+        
+        // ==============
+        // PWA Functions
+        // ==============
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            elements.installBtn.style.display = 'block';
+        });
+        
+        elements.installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('User installed the app');
+                elements.installBtn.style.display = 'none';
+            }
+            
+            deferredPrompt = null;
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('App was installed');
+            elements.installBtn.style.display = 'none';
+        });
+        
+        // ==============
+        // App Initialization
+        // ==============
+        function showApp() {
+            showScreen('chatListScreen');
+            loadUserProfile();
+            loadChats();
+            loadContacts();
+            
+            // Update online status periodically
+            setInterval(() => {
+                if (currentUser) {
+                    db.collection('users').doc(currentUser.uid).update({
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            }, 30000); // Every 30 seconds
+            
+            // Set up manifest for PWA
+            const manifest = {
+                "name": "دردشة مصرية",
+                "short_name": "دردشة مصرية",
+                "description": "تطبيق دردشة مجاني وآمن للمصريين",
+                "lang": "ar",
+                "dir": "rtl",
+                "start_url": "/",
+                "display": "standalone",
+                "theme_color": "#075e54",
+                "background_color": "#ffffff",
+                "icons": [
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            };
+            
+            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            document.getElementById('manifest').href = manifestURL;
+        }
+        
+        function checkExistingUser() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    showApp();
+                    hideLoading();
+                    return true;
+                } catch (e) {
+                    localStorage.removeItem('currentUser');
+                }
+            }
+            return false;
+        }
+        
+        function init() {
+            // Check for existing user session
+            if (checkExistingUser()) {
+                return;
+            }
+            
+            // Show auth screen
+            showScreen('authScreen');
+            hideLoading();
+            
+            // Event Listeners
+            elements.sendOtpBtn.addEventListener('click', sendOtp);
+            
+            elements.verifyOtpBtn.addEventListener('click', verifyOtp);
+            
+            elements.resendOtp.addEventListener('click', () => {
+                if (window.tempUserData) {
+                    window.generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                    alert(`✨ إعادة إرسال رمز التحقق ✨\n\nرمز التحقق الجديد: ${window.generatedOtp}`);
+                    showToast('تم إعادة إرسال رمز التحقق');
+                }
+            });
+            
+            elements.backToAuthBtn.addEventListener('click', () => {
+                showScreen('authScreen');
+            });
+            
+            // OTP input navigation
+            elements.otpInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < 5) {
+                        elements.otpInputs[index + 1].focus();
+                    }
+                    
+                    // Auto verify when all inputs are filled
+                    const allFilled = Array.from(elements.otpInputs).every(i => i.value.length === 1);
+                    if (allFilled) {
+                        elements.verifyOtpBtn.focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        elements.otpInputs[index - 1].focus();
+                    }
+                });
+            });
+            
+            elements.sendBtn.addEventListener('click', () => {
+                const message = elements.messageInput.value.trim();
+                if (message) {
+                    sendMessage(message);
+                }
+            });
+            
+            elements.messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const message = elements.messageInput.value.trim();
+                    if (message) {
+                        sendMessage(message);
+                    }
+                }
+            });
+            
+            elements.backBtn.addEventListener('click', () => {
+                if (currentChat) {
+                    currentChat = null;
+                    showScreen('chatListScreen');
+                }
+            });
+            
+            elements.navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const screenId = item.getAttribute('data-screen');
+                    showScreen(screenId);
+                });
+            });
+            
+            elements.logoutBtn.addEventListener('click', () => {
+                if (confirm('هل تريد تسجيل الخروج؟')) {
+                    localStorage.removeItem('currentUser');
+                    currentUser = null;
+                    showScreen('authScreen');
+                    showToast('تم تسجيل الخروج');
+                }
+            });
+            
+            elements.editProfileBtn.addEventListener('click', () => {
+                const newName = prompt('أدخل اسمك الجديد:', currentUser.name);
+                if (newName && newName.trim() && newName !== currentUser.name) {
+                    updateUserName(newName.trim());
+                }
+            });
+            
+            elements.addContactBtn.addEventListener('click', () => {
+                elements.addContactModal.style.display = 'flex';
+                elements.contactNameInput.focus();
+            });
+            
+            elements.cancelContactBtn.addEventListener('click', () => {
+                elements.addContactModal.style.display = 'none';
+                elements.contactNameInput.value = '';
+                elements.contactPhoneInput.value = '';
+            });
+            
+            elements.saveContactBtn.addEventListener('click', () => {
+                const name = elements.contactNameInput.value.trim();
+                const phone = elements.contactPhoneInput.value.trim();
+                addContact(name, phone);
+            });
+            
+            // Close modal on overlay click
+            elements.addContactModal.addEventListener('click', (e) => {
+                if (e.target === elements.addContactModal) {
+                    elements.addContactModal.style.display = 'none';
+                }
+            });
+            
+            // Initialize service worker for PWA
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    // Create a simple service worker
+                    const swCode = `
+                        self.addEventListener('install', event => {
+                            console.log('Service Worker installed');
+                        });
+                        
+                        self.addEventListener('fetch', event => {
+                            // Cache-first strategy
+                            event.respondWith(
+                                caches.match(event.request)
+                                    .then(response => response || fetch(event.request))
+                            );
+                        });
+                    `;
+                    
+                    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                    const swURL = URL.createObjectURL(swBlob);
+                    
+                    navigator.serviceWorker.register(swURL)
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful');
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed:', err);
+                        });
+                });
+            }
+        }
+        
+        async function updateUserName(newName) {
+            try {
+                showLoading('جاري تحديث الاسم...');
+                
+                await db.collection('users').doc(currentUser.uid).update({
+                    name: newName
+                });
+                
+                // Update current user
+                currentUser.name = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Update all chats where user is participant
+                const chatsSnapshot = await db.collection('chats')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .get();
+                
+                const batch = db.batch();
+                chatsSnapshot.forEach(doc => {
+                    const chatData = doc.data();
+                    const participantIndex = chatData.participants.indexOf(currentUser.uid);
+                    if (participantIndex !== -1) {
+                        const newNames = [...chatData.participantNames];
+                        newNames[participantIndex] = newName;
+                        batch.update(doc.ref, { participantNames: newNames });
+                    }
+                });
+                
+                await batch.commit();
+                
+                hideLoading();
+                showToast('تم تحديث الاسم بنجاح');
+                loadUserProfile();
+                loadChats();
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error updating name:', error);
+                showToast('خطأ في تحديث الاسم');
+            }
+        }
+        
+        // Start the app
+        document.addEventListener('DOMContentLoaded', () => {
+            showLoading('جاري تحميل التطبيق...');
+            setTimeout(init, 1000);
+        });
+        
+        // Handle visibility change for notifications
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && currentUser) {
+                // Update status when app becomes visible
+                db.collection('users').doc(currentUser.uid).update({
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'متصل'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
