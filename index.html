@@ -1063,15 +1063,23 @@
         // ======================
         // Firebase Configuration
         // ======================
-        const firebaseConfig = {
-            // ⚠️ استبدل هذه القيم بقيم مشروعك الفعلي من Firebase Console
-            apiKey: "AIzaSyDUMMY_KEY_CHANGE_ME",
-            authDomain: "egypt-chat-app.firebaseapp.com",
-            projectId: "egypt-chat-app",
-            storageBucket: "egypt-chat-app.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890"
-        };
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
+  authDomain: "yasser-chat-6c39c.firebaseapp.com",
+  projectId: "yasser-chat-6c39c",
+  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
+  messagingSenderId: "141483029088",
+  appId: "1:141483029088:web:18787391e80466f6bbc905"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
         
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
