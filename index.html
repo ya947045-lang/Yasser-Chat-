@@ -1,81 +1,56 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>شات فشيخ</title>
-<link rel="stylesheet" href="style.css">
-<script type="module" src="firebaseConfig.js"></script>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-<div class="login-container">
-  <h1>شات فشيخ</h1>
+<body class="center">
 
-  <input type="text" id="displayName" placeholder="اسمك">
-  <input type="email" id="email" placeholder="البريد الإلكتروني">
-  <input type="password" id="password" placeholder="كلمة المرور">
-
-  <button id="signupBtn">تسجيل حساب جديد</button>
-  <button id="loginBtn">تسجيل الدخول</button>
+<div class="card">
+  <h2>تسجيل دخول</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="register()">إنشاء حساب</button>
+  <button onclick="login()">دخول</button>
+  <p id="msg"></p>
 </div>
 
 <script type="module">
-import { auth, db } from "./firebaseConfig.js";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const signupBtn = document.getElementById("signupBtn");
-const loginBtn = document.getElementById("loginBtn");
+const firebaseConfig = {
+  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
+  authDomain: "yasser-chat-6c39c.firebaseapp.com",
+  projectId: "yasser-chat-6c39c",
+  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
+  messagingSenderId: "141483029088",
+  appId: "1:141483029088:web:49c20f6f027be755bbc905"
+};
 
-signupBtn.addEventListener("click", async () => {
-  const displayName = document.getElementById("displayName").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  if(!displayName || !email || !password) return alert("املأ كل الحقول");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const msg = document.getElementById("msg");
 
+window.register = async () => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    location.href = "chat.html";
+  } catch (e) { msg.innerText = e.message; }
+};
 
-    // إضافة المستخدم للـ users
-    await setDoc(doc(db, "users", uid), {
-      name: displayName,
-      email: email,
-      online: true
-    });
-
-    localStorage.setItem("uid", uid);
-    localStorage.setItem("name", displayName);
-
-    window.location.href = "chat.html";
-  } catch(err) {
-    alert(err.message);
-  }
-});
-
-loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if(!email || !password) return alert("املأ كل الحقول");
-
+window.login = async () => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-
-    // تحديث حالة online
-    await updateDoc(doc(db, "users", uid), { online: true });
-
-    const userSnap = await doc(db, "users", uid).get();
-    localStorage.setItem("uid", uid);
-    localStorage.setItem("name", userSnap.exists() ? userSnap.data().name : "User");
-
-    window.location.href = "chat.html";
-  } catch(err) {
-    alert(err.message);
-  }
-});
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    location.href = "chat.html";
+  } catch (e) { msg.innerText = e.message; }
+};
 </script>
+
 </body>
 </html>
