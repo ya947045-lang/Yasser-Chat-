@@ -1,8 +1,9 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: linear-gradient(135deg, #ff6fcf, #9d4edd);
   color: white;
+  height: 100vh;
 }
 
 .center {
@@ -13,14 +14,16 @@ body {
 }
 
 .card {
-  background: #1e293b;
+  background: rgba(0,0,0,0.2);
   padding: 30px;
-  border-radius: 15px;
-  width: 300px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 350px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  animation: fadeIn 0.7s ease-in-out;
 }
 
 input {
@@ -33,10 +36,15 @@ button {
   padding: 10px;
   border-radius: 8px;
   border: none;
-  background: #22c55e;
+  background: #ff63b3;
   color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
 }
 
 .chat-wrapper {
@@ -46,7 +54,7 @@ button {
 }
 
 .top-bar {
-  background: #111827;
+  background: rgba(0,0,0,0.3);
   padding: 15px;
   display: flex;
   justify-content: space-between;
@@ -59,24 +67,27 @@ button {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 
 .msg {
   max-width: 70%;
   padding: 10px;
-  margin: 5px 0;
-  border-radius: 12px;
+  border-radius: 15px;
   position: relative;
+  word-wrap: break-word;
 }
 
 .me {
-  background: #22c55e;
+  background: #ff63b3;
   align-self: flex-end;
+  animation: slideInRight 0.5s;
 }
 
 .other {
-  background: #334155;
+  background: #9d4edd;
   align-self: flex-start;
+  animation: slideInLeft 0.5s;
 }
 
 .tick {
@@ -88,10 +99,26 @@ button {
 .send-box {
   display: flex;
   padding: 10px;
-  background: #111827;
+  background: rgba(0,0,0,0.3);
 }
 
 .send-box input {
   flex: 1;
   margin-right: 10px;
+}
+
+/* Animate keyframes fallback */
+@keyframes slideInRight {
+  from { transform: translateX(50%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-50%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
