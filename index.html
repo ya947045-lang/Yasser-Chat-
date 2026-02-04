@@ -1,56 +1,46 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شات فشيخ</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="firebaseConfig.js"></script>
 </head>
-<body class="center">
-
-<div class="card">
-  <h2>تسجيل دخول</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="register()">إنشاء حساب</button>
-  <button onclick="login()">دخول</button>
-  <p id="msg"></p>
+<body>
+<div class="login-container">
+  <h1>أدخل اسمك</h1>
+  <input type="text" id="username" placeholder="اسمك">
+  <button id="loginBtn">دخول</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { db, auth } from "./firebaseConfig.js";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
-  authDomain: "yasser-chat-6c39c.firebaseapp.com",
-  projectId: "yasser-chat-6c39c",
-  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
-  messagingSenderId: "141483029088",
-  appId: "1:141483029088:web:49c20f6f027be755bbc905"
-};
+const loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", async () => {
+  const username = document.getElementById("username").value.trim();
+  if(!username) return alert("اكتب اسمك يا فشيخ");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+  // تسجيل دخول مجهول
+  const userCredential = await signInAnonymously(auth);
+  const uid = userCredential.user.uid;
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const msg = document.getElementById("msg");
+  // إضافة المستخدم لـ users
+  await setDoc(doc(db, "users", uid), {
+    name: username,
+    online: true
+  });
 
-window.register = async () => {
-  try {
-    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-    location.href = "chat.html";
-  } catch (e) { msg.innerText = e.message; }
-};
+  // احفظ الـ UID في localStorage عشان صفحة الشات تعرفه
+  localStorage.setItem("uid", uid);
+  localStorage.setItem("name", username);
 
-window.login = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-    location.href = "chat.html";
-  } catch (e) { msg.innerText = e.message; }
-};
+  // روح لصفحة الشات
+  window.location.href = "chat.html";
+});
 </script>
-
 </body>
 </html>
