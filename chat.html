@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <title>Chat</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-<div class="chat-wrapper">
+<div class="chat-wrapper animate__animated animate__fadeIn">
   <div class="top-bar">
     <span>💬 Chat Room</span>
     <button onclick="logout()">خروج</button>
@@ -66,26 +67,27 @@ window.sendMessage = async () => {
 };
 
 const q = query(collection(db, "messages"), orderBy("time"));
-
 onSnapshot(q, snapshot => {
   messagesDiv.innerHTML = "";
   snapshot.forEach(doc => {
     const msg = doc.data();
     const div = document.createElement("div");
-
     const isMe = msg.uid === currentUser?.uid;
-    div.className = isMe ? "msg me" : "msg other";
-
-    div.innerHTML = `
-      ${msg.text}
-      ${isMe ? '<span class="tick">✔</span>' : ''}
-    `;
-
+    div.className = isMe ? "msg me animate__animated animate__fadeInRight" : "msg other animate__animated animate__fadeInLeft";
+    div.innerHTML = `${msg.text}${isMe ? '<span class="tick">✔</span>' : ''}`;
     messagesDiv.appendChild(div);
   });
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
+
+// PWA install (for chat page too)
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
 </script>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </body>
 </html>
