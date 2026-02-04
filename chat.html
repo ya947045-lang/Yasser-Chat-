@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div class="chat-wrapper animate__animated animate__fadeIn">
+<div class="chat-wrapper">
   <div class="top-bar">
     <span>💬 Chat Room</span>
     <button onclick="logout()">خروج</button>
@@ -66,6 +66,7 @@ window.sendMessage = async () => {
   messageInput.value = "";
 };
 
+// عرض الرسائل بدون animation
 const q = query(collection(db, "messages"), orderBy("time"));
 onSnapshot(q, snapshot => {
   messagesDiv.innerHTML = "";
@@ -73,21 +74,17 @@ onSnapshot(q, snapshot => {
     const msg = doc.data();
     const div = document.createElement("div");
     const isMe = msg.uid === currentUser?.uid;
-    div.className = isMe ? "msg me animate__animated animate__fadeInRight" : "msg other animate__animated animate__fadeInLeft";
+    div.className = isMe ? "msg me" : "msg other";
     div.innerHTML = `${msg.text}${isMe ? '<span class="tick">✔</span>' : ''}`;
     messagesDiv.appendChild(div);
   });
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
-// PWA install (for chat page too)
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
 </script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </body>
 </html>
