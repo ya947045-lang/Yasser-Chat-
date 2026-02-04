@@ -8,7 +8,7 @@
 </head>
 <body class="center">
 
-<div class="card animate__animated animate__fadeInDown">
+<div class="card">
   <h2>تسجيل دخول</h2>
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
@@ -69,9 +69,11 @@ installBtn.addEventListener('click', async () => {
   deferredPrompt.prompt();
   deferredPrompt = null;
 });
-</script>
 
-<!-- Animate.css CDN for animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
 </body>
 </html>
