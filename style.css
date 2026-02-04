@@ -38,13 +38,13 @@ input {
 
 /* الأزرار كبيرة جدًا */
 button {
-  padding: 18px;
+  padding: 25px;
   border-radius: 16px;
   border: none;
   background: #ff63b3;
   color: white;
   font-weight: bold;
-  font-size: 22px;
+  font-size: 25px;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -74,7 +74,7 @@ button:hover {
 /* صندوق الرسائل */
 .messages {
   flex: 1;
-  padding: 22px;
+  padding: 28px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -83,12 +83,12 @@ button:hover {
 
 /* الرسائل */
 .msg {
-  max-width: 75%;
-  padding: 18px 24px;
+  max-width: 80%;
+  padding: 20px 26px;
   border-radius: 26px;
   position: relative;
   word-wrap: break-word;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.6;
 }
 
@@ -121,7 +121,7 @@ button:hover {
 .send-box input {
   flex: 1;
   margin-right: 14px;
-  font-size: 22px;
-  padding: 18px;
+  font-size: 24px;
+  padding: 20px;
   border-radius: 16px;
 }
