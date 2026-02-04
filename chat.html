@@ -1,91 +1,89 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Chat</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شات فشيخ</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="firebaseConfig.js"></script>
 </head>
 <body>
+<div class="chat-container">
 
-<div class="chat-wrapper">
-  <div class="top-bar">
-    <span>💬 Chat Room</span>
-    <button onclick="logout()">خروج</button>
+  <div class="users-list">
+    <h2>المستخدمين Online</h2>
+    <ul id="users"></ul>
   </div>
 
-  <div id="messages" class="messages"></div>
-
-  <div class="send-box">
-    <input type="text" id="messageInput" placeholder="اكتب رسالة...">
-    <button onclick="sendMessage()">إرسال</button>
+  <div class="chat-box">
+    <div id="messages" class="messages"></div>
+    <div class="input-box">
+      <input type="text" id="messageInput" placeholder="اكتب رسالة">
+      <button id="sendBtn">إرسال</button>
+    </div>
   </div>
+
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db, auth } from "./firebaseConfig.js";
+import { collection, doc, setDoc, getDoc, getDocs, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
-  authDomain: "yasser-chat-6c39c.firebaseapp.com",
-  projectId: "yasser-chat-6c39c",
-  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
-  messagingSenderId: "141483029088",
-  appId: "1:141483029088:web:49c20f6f027be755bbc905"
-};
+const uid = localStorage.getItem("uid");
+const name = localStorage.getItem("name");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+let currentChatId = null; // الشات الحالي مع المستخدم المحدد
 
-let currentUser = null;
+const usersList = document.getElementById("users");
 const messagesDiv = document.getElementById("messages");
+const sendBtn = document.getElementById("sendBtn");
 const messageInput = document.getElementById("messageInput");
 
-onAuthStateChanged(auth, user => {
-  if (!user) location.href = "index.html";
-  else currentUser = user;
+// تحميل المستخدمين Online
+const usersCol = collection(db, "users");
+onSnapshot(usersCol, snapshot => {
+  usersList.innerHTML = "";
+  snapshot.forEach(docSnap => {
+    if(docSnap.id !== uid) {
+      const li = document.createElement("li");
+      li.textContent = docSnap.data().name + (docSnap.data().online ? " 🟢" : " ⚪");
+      li.addEventListener("click", () => openChat(docSnap.id, docSnap.data().name));
+      usersList.appendChild(li);
+    }
+  });
 });
 
-window.logout = () => signOut(auth);
+// فتح شات مع مستخدم محدد
+function openChat(otherUid, otherName) {
+  // ترتيب الـ UID أبجدي عشان كل طرف يشوف نفس الشات
+  currentChatId = uid < otherUid ? `${uid}_${otherUid}` : `${otherUid}_${uid}`;
+  messagesDiv.innerHTML = `<h3>شات مع ${otherName}</h3>`;
 
-window.sendMessage = async () => {
-  if (!currentUser) return alert("انتظر تسجيل الدخول");
-  if (!messageInput.value.trim()) return;
+  // استمع للرسائل
+  const messagesQuery = query(collection(db, "chats", currentChatId, "messages"), orderBy("time"));
+  onSnapshot(messagesQuery, snapshot => {
+    messagesDiv.innerHTML = `<h3>شات مع ${otherName}</h3>`;
+    snapshot.forEach(docSnap => {
+      const div = document.createElement("div");
+      div.className = docSnap.data().senderUid === uid ? "my-message" : "other-message";
+      div.innerHTML = docSnap.data().text + (docSnap.data().senderUid === uid ? " ✔" : "");
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  });
+}
 
-  await addDoc(collection(db, "messages"), {
-    text: messageInput.value,
-    uid: currentUser.uid,
+// إرسال رسالة
+sendBtn.addEventListener("click", async () => {
+  const text = messageInput.value.trim();
+  if(!text || !currentChatId) return;
+  await addDoc(collection(db, "chats", currentChatId, "messages"), {
+    text,
+    senderUid: uid,
     time: serverTimestamp()
   });
-
   messageInput.value = "";
-};
-
-const q = query(collection(db, "messages"), orderBy("time"));
-
-onSnapshot(q, snapshot => {
-  messagesDiv.innerHTML = "";
-  snapshot.forEach(doc => {
-    const msg = doc.data();
-    const div = document.createElement("div");
-
-    const isMe = msg.uid === currentUser?.uid;
-    div.className = isMe ? "msg me" : "msg other";
-
-    div.innerHTML = `
-      ${msg.text}
-      ${isMe ? '<span class="tick">✔</span>' : ''}
-    `;
-
-    messagesDiv.appendChild(div);
-  });
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 </script>
-
 </body>
 </html>
