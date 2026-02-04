@@ -21,23 +21,25 @@
       <input type="text" id="messageInput" placeholder="اكتب رسالة">
       <button id="sendBtn">إرسال</button>
     </div>
+    <button id="logoutBtn" style="margin-top:10px;">تسجيل الخروج</button>
   </div>
 
 </div>
 
 <script type="module">
 import { db, auth } from "./firebaseConfig.js";
-import { collection, doc, setDoc, getDoc, getDocs, addDoc, onSnapshot, serverTimestamp, query, orderBy } from "firebase/firestore";
+import { collection, doc, addDoc, onSnapshot, serverTimestamp, query, orderBy, updateDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 
 const uid = localStorage.getItem("uid");
 const name = localStorage.getItem("name");
 
-let currentChatId = null; // الشات الحالي مع المستخدم المحدد
-
+let currentChatId = null;
 const usersList = document.getElementById("users");
 const messagesDiv = document.getElementById("messages");
 const sendBtn = document.getElementById("sendBtn");
 const messageInput = document.getElementById("messageInput");
+const logoutBtn = document.getElementById("logoutBtn");
 
 // تحميل المستخدمين Online
 const usersCol = collection(db, "users");
@@ -53,13 +55,11 @@ onSnapshot(usersCol, snapshot => {
   });
 });
 
-// فتح شات مع مستخدم محدد
+// فتح شات
 function openChat(otherUid, otherName) {
-  // ترتيب الـ UID أبجدي عشان كل طرف يشوف نفس الشات
   currentChatId = uid < otherUid ? `${uid}_${otherUid}` : `${otherUid}_${uid}`;
   messagesDiv.innerHTML = `<h3>شات مع ${otherName}</h3>`;
 
-  // استمع للرسائل
   const messagesQuery = query(collection(db, "chats", currentChatId, "messages"), orderBy("time"));
   onSnapshot(messagesQuery, snapshot => {
     messagesDiv.innerHTML = `<h3>شات مع ${otherName}</h3>`;
@@ -83,6 +83,14 @@ sendBtn.addEventListener("click", async () => {
     time: serverTimestamp()
   });
   messageInput.value = "";
+});
+
+// تسجيل الخروج
+logoutBtn.addEventListener("click", async () => {
+  await updateDoc(doc(db, "users", uid), { online: false });
+  await signOut(auth);
+  localStorage.clear();
+  window.location.href = "index.html";
 });
 </script>
 </body>
