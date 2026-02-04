@@ -2,62 +2,54 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat Login</title>
+  <title>Login</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="center">
 
-<div class="login-box">
-  <h2>تسجيل دخول / حساب جديد</h2>
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
+<div class="card">
+  <h2>تسجيل دخول</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
   <button onclick="register()">إنشاء حساب</button>
-  <button onclick="login()">تسجيل دخول</button>
+  <button onclick="login()">دخول</button>
   <p id="msg"></p>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
-    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
-    authDomain: "yasser-chat-6c39c.firebaseapp.com",
-    projectId: "yasser-chat-6c39c",
-    storageBucket: "yasser-chat-6c39c.firebasestorage.app",
-    messagingSenderId: "141483029088",
-    appId: "1:141483029088:web:49c20f6f027be755bbc905"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
+  authDomain: "yasser-chat-6c39c.firebaseapp.com",
+  projectId: "yasser-chat-6c39c",
+  storageBucket: "yasser-chat-6c39c.firebasestorage.app",
+  messagingSenderId: "141483029088",
+  appId: "1:141483029088:web:49c20f6f027be755bbc905"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  window.register = async () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      location.href = "chat.html";
-    } catch (e) {
-      msg.innerText = e.message;
-    }
-  };
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const msg = document.getElementById("msg");
 
-  window.login = async () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      location.href = "chat.html";
-    } catch (e) {
-      msg.innerText = e.message;
-    }
-  };
+window.register = async () => {
+  try {
+    await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    location.href = "chat.html";
+  } catch (e) { msg.innerText = e.message; }
+};
 
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const msg = document.getElementById("msg");
+window.login = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+    location.href = "chat.html";
+  } catch (e) { msg.innerText = e.message; }
+};
 </script>
 
 </body>
