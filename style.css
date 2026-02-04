@@ -1,275 +1,119 @@
-/* تحسينات للتوافق مع الجوال */
+/* تطبيق واتساب بالضبط */
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* الجسم كامل - محسن للجوال */
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    background: linear-gradient(135deg, #ff6fcf, #9d4edd);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: #0c1317;
     color: white;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* مركز الصفحة للجوال */
+/* شاشة تسجيل الدخول - كتطبيق واتساب */
 .center {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background: linear-gradient(135deg, #ff6fcf, #9d4edd);
     padding: 20px;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* كارد تسجيل الدخول - مصمم للجوال */
 .card {
-    background: rgba(0,0,0,0.3);
-    padding: 30px 25px;
-    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 40px 30px;
+    border-radius: 12px;
     width: 100%;
-    max-width: 95vw;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.15);
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
 }
 
-/* Inputs - حجم كبير للجوال */
+.card h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: 300;
+}
+
+.card p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
 input {
-    padding: 20px 18px;
-    border-radius: 16px;
-    border: none;
-    font-size: 18px;
     width: 100%;
-    background: rgba(255,255,255,0.95);
-    color: #222;
-    transition: all 0.2s;
-    -webkit-appearance: none;
-    appearance: none;
+    padding: 18px 20px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    color: #333;
+    outline: none;
 }
 
 input:focus {
-    outline: none;
     background: white;
-    box-shadow: 0 0 0 3px rgba(255,99,179,0.4);
 }
 
-input::placeholder {
-    color: #666;
-    font-size: 17px;
-}
-
-/* الأزرار - حجم كبير للجوال */
 button {
-    padding: 22px;
-    border-radius: 16px;
-    border: none;
-    background: linear-gradient(135deg, #ff63b3, #ff4da6);
-    color: white;
-    font-weight: 700;
-    font-size: 19px;
-    cursor: pointer;
-    transition: all 0.2s;
     width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 8px;
+    background: #ff63b3;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
     margin-top: 10px;
-    touch-action: manipulation;
-    letter-spacing: 0.5px;
-    min-height: 60px;
-}
-
-button:active {
-    transform: scale(0.97);
-    opacity: 0.9;
 }
 
 button:hover {
-    background: linear-gradient(135deg, #e552a5, #d43d95);
+    background: #e552a5;
 }
 
-/* شاشة الدردشة للجوال */
+/* شاشة الدردشة - واتساب بالضبط */
 .chat-wrapper {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    height: calc(var(--vh, 1vh) * 100);
-    max-height: -webkit-fill-available;
+    background: #0c1317;
 }
 
-/* شريط أعلى - محسن للجوال */
+/* الهيدر العلوي - واتساب */
 .top-bar {
-    background: rgba(0,0,0,0.35);
-    padding: 18px 20px;
+    background: #202c33;
+    padding: 12px 16px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 19px;
-    font-weight: 700;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    min-height: 65px;
-    flex-shrink: 0;
-    padding-top: max(18px, env(safe-area-inset-top));
-}
-
-/* منطقة الرسائل - محسنة للجوال */
-.messages {
-    flex: 1;
-    padding: 20px 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
     gap: 15px;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    min-height: 64px;
 }
 
-/* إخفاء شريط التمرير في بعض المتصفحات */
-.messages::-webkit-scrollbar {
-    width: 5px;
-}
-
-.messages::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-}
-
-.messages::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.25);
-    border-radius: 10px;
-}
-
-/* الرسائل - حجم مناسب للجوال */
-.msg {
-    max-width: 88%;
-    padding: 18px 20px;
-    border-radius: 24px;
-    position: relative;
-    word-wrap: break-word;
-    font-size: 18px;
-    line-height: 1.5;
-    animation: msgAppear 0.25s ease-out;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-@keyframes msgAppear {
-    from {
-        opacity: 0;
-        transform: translateY(15px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* رسائل المستخدم */
-.me {
-    background: linear-gradient(135deg, #ff63b3, #ff4da6);
-    align-self: flex-end;
-    border-bottom-right-radius: 8px;
-    margin-left: auto;
-}
-
-/* رسائل الآخرين */
-.other {
-    background: linear-gradient(135deg, #9d4edd, #8a2be2);
-    align-self: flex-start;
-    border-bottom-left-radius: 8px;
-    margin-right: auto;
-}
-
-/* وقت الرسالة */
-.msg-time {
-    font-size: 13px;
-    opacity: 0.85;
-    margin-top: 8px;
-    display: block;
-    direction: ltr;
-    text-align: right;
-}
-
-.other .msg-time {
-    text-align: left;
-}
-
-/* علامة القراءة */
-.tick {
-    font-size: 15px;
-    margin-right: 6px;
-    color: #00ff9d;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-/* صندوق الإرسال - محسن للجوال */
-.send-box {
-    display: flex;
-    padding: 18px 15px;
-    background: rgba(0,0,0,0.35);
-    gap: 12px;
-    align-items: center;
-    flex-shrink: 0;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    padding-bottom: max(18px, env(safe-area-inset-bottom));
-}
-
-.send-box input {
-    flex: 1;
-    font-size: 18px;
-    padding: 18px 20px;
-    border-radius: 30px;
-    margin: 0;
-    background: rgba(255,255,255,0.95);
-    min-height: 56px;
-}
-
-.send-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin: 0;
-    min-height: auto;
-    flex-shrink: 0;
-}
-
-/* زر الرجوع */
 .back-btn {
     background: none;
     border: none;
     color: white;
-    font-size: 28px;
-    padding: 10px;
-    width: auto;
-    margin: 0;
-    min-height: auto;
-    flex-shrink: 0;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
 }
 
-/* معلومات المستخدم */
 .user-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
     flex: 1;
-    justify-content: center;
 }
 
 .user-avatar {
@@ -280,130 +124,261 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
     font-size: 20px;
-    flex-shrink: 0;
+    font-weight: 600;
 }
 
-/* الحالة اونلاين */
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 17px;
+    font-weight: 500;
+}
+
 .online-status {
     font-size: 14px;
-    opacity: 0.9;
-    font-weight: 600;
+    color: #8696a0;
     margin-top: 3px;
+}
+
+/* منطقة الرسائل - واتساب */
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="pattern" patternUnits="userSpaceOnUse" width="400" height="400" patternTransform="scale(1)"><rect width="100%" height="100%" fill="%230c1317"/><path d="M200 0L0 200h400z" fill="%2312181c" opacity="0.1"/><path d="M0 200l200 200V0z" fill="%2312181c" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23pattern)"/></svg>');
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* الرسائل - واتساب */
+.msg {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    position: relative;
+    word-wrap: break-word;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* رسائلي */
+.me {
+    background: #005c4b;
+    align-self: flex-end;
+    margin-left: auto;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 8px;
+    border-top-left-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.me:first-child {
+    border-top-right-radius: 8px;
+}
+
+.me:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+/* رسائل الآخرين */
+.other {
+    background: #202c33;
+    align-self: flex-start;
+    margin-right: auto;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 8px;
+    border-top-right-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.other:first-child {
+    border-top-left-radius: 8px;
+}
+
+.other:last-child {
+    border-bottom-left-radius: 8px;
+}
+
+/* وقت الرسالة - واتساب */
+.msg-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 5px;
+    direction: ltr;
+}
+
+.msg-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 8px;
+}
+
+.tick {
+    font-size: 14px;
+    color: #53bdeb;
+    margin-left: 3px;
+}
+
+.other .msg-footer {
+    justify-content: flex-start;
+}
+
+.other .msg-time {
+    margin-left: 0;
+    margin-right: 8px;
+}
+
+/* صندوق الإرسال - واتساب بالضبط */
+.send-box {
+    background: #202c33;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
+    min-height: 68px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.online-status::before {
-    content: "●";
-    color: #00ff88;
-    font-size: 12px;
+.send-box input {
+    flex: 1;
+    background: #2a3942;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    color: white;
+    outline: none;
+    margin: 0;
+    height: 48px;
 }
 
-/* عناوين تسجيل الدخول */
-.login-title {
-    text-align: center;
-    margin: 0 0 20px 0;
-    font-size: 32px;
-    font-weight: 800;
+.send-box input::placeholder {
+    color: #8696a0;
 }
 
-.login-subtitle {
-    text-align: center;
-    opacity: 0.9;
-    margin-bottom: 15px;
-    font-size: 17px;
-    line-height: 1.5;
+.send-btn {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
+    background: #ff63b3;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: 0;
+    padding: 0;
+    font-size: 22px;
 }
 
-/* رسالة ترحيبية */
+.send-btn:hover {
+    background: #e552a5;
+}
+
+/* رسالة الترحيب - واتساب */
 .welcome-msg {
     text-align: center;
     padding: 20px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 20px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #8696a0;
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-/* تصميمات خاصة للشاشات الصغيرة */
-@media (max-width: 380px) {
-    .card {
-        padding: 25px 20px;
-        border-radius: 20px;
+.welcome-msg strong {
+    color: white;
+    font-weight: 500;
+}
+
+/* رسائل التاريخ - واتساب */
+.date-divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.date-divider span {
+    background: #182229;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #8696a0;
+    display: inline-block;
+}
+
+/* تأثيرات اللمس للجوال */
+@media (hover: none) {
+    button:active {
+        opacity: 0.8;
+        transform: scale(0.98);
     }
     
-    .msg {
-        max-width: 92%;
-        padding: 16px 18px;
-        font-size: 17px;
-        border-radius: 22px;
-    }
-    
-    input, button {
-        padding: 20px;
-    }
-    
-    .login-title {
-        font-size: 28px;
-    }
-    
-    .send-box input {
-        min-height: 52px;
-        padding: 16px 18px;
-    }
-    
-    .send-btn {
-        width: 52px;
-        height: 52px;
+    .send-btn:active {
+        transform: scale(0.95);
     }
 }
 
-@media (max-width: 320px) {
-    .card {
-        padding: 22px 18px;
-    }
-    
-    .msg {
-        max-width: 95%;
-        padding: 14px 16px;
-        font-size: 16px;
+/* دعم Safe Area للآيفون */
+@supports (padding: max(0px)) {
+    .send-box {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
     }
     
     .top-bar {
-        padding: 15px 18px;
-        font-size: 18px;
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-}
-
-/* تحسينات للأجهزة التي تحتوي على شق في الشاشة (Notch) */
-@supports (padding: max(0px)) {
-    .top-bar,
-    .send-box {
-        padding-left: max(15px, env(safe-area-inset-left));
-        padding-right: max(15px, env(safe-area-inset-right));
+        padding-top: max(12px, env(safe-area-inset-top));
     }
     
     .messages {
-        padding-left: max(15px, env(safe-area-inset-left));
-        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
     }
 }
 
-/* تجنب التكبير التلقائي على iOS */
-@media screen and (max-width: 768px) {
-    input, textarea, select {
-        font-size: 16px !important;
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 480px) {
+    .card {
+        padding: 35px 25px;
+        margin: 20px;
     }
-  }
+    
+    .msg {
+        max-width: 80%;
+        font-size: 15px;
+    }
+    
+    .send-box {
+        padding: 8px 10px;
+    }
+    
+    .send-box input {
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+}
+
+/* تجنب التكبير على iOS */
+input, textarea {
+    font-size: 16px !important;
+}
+
+/* إخفاء العناصر */
+.hidden {
+    display: none !important;
+}
