@@ -23,6 +23,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { setPersistence, browserLocalPersistence }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDLm_HUbnNfRv4ZH9u08VQi7pmZzm1GgRk",
@@ -35,6 +37,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+await setPersistence(auth, browserLocalPersistence);
 
   import { setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
